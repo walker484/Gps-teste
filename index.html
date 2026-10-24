@@ -1,1 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt‑BR">
+<head>
+<meta charset="UTF‑8">
+<meta name="viewport" content="width=device‑width, initial‑scale=1.0">
+<title>Mapa‑GPS Igarapé Resplendor</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+*{box‑sizing:border‑box;margin:0;padding:0;font‑family:Arial,sans‑serif;}
+body{padding:10px;}
+#mapa{width:100%;height:78vh;border‑radius:10px;}
+.info{margin‑bottom:8px;font‑size:16px;}
+.botao{padding:10px 14px;border:none;border‑radius:8px;background:#2b6cb0;color:#fff;font‑size:16px;margin:4px;}
+</style>
+</head>
+<body>
+<div class="info">📡 Estado: <span id="estado">Parado</span></div>
+<button class="botao" onclick="iniciarRastreio()">▶️ Iniciar rota</button>
+<button class="botao" onclick="pararRastreio()">⏹️ Parar rota</button>
+<div id="mapa"></div>
+
+<script>
+let mapa,marcadorEu,linhaRota;
+const latCasa =‑19.9522;
+const lonCasa =‑43.9817;
+let rastreando=false;
+let idIntervalo;
+
+function iniciarMapa(){
+  mapa=L.map('mapa').setView([latCasa,lonCasa],15);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap'}).addTo(mapa);
+  marcadorEu=L.marker([latCasa,lonCasa]).addTo(mapa).bindPopup("🏡 Minha casa‑Rua Pernambuco,216");
+  linhaRota = L.polyline([], {color:"red", weight:4}).addTo(mapa);
+}
+
+function iniciarRastreio(){
+  rastreando=true;
+  document.getElementById('estado').innerText="Rota em andamento…";
+  idIntervalo=setInterval(pegarPosicao,4000);
+}
+function pararRastreio(){
+  rastreando=false;
+  clearInterval(idIntervalo);
+  document.getElementById('estado').innerText="Parado";
+}
+function pegarPosicao(){
+  navigator.geolocation.getCurrentPosition(pos=>{
+    const lat=pos.coords.latitude;
+    const lon=pos.coords.longitude;
+    marcadorEu.setLatLng([lat,lon]);
+    mapa.setView([lat,lon]);
+    linhaRota.addLatLng([lat,lon]);
+  },erro=>{alert("Não consegui pegar localização");});
+}
+window.onload=()=>{iniciarMapa();}
+</script>
+</body>
+</html>
 
